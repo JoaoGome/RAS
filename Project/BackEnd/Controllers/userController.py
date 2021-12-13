@@ -34,11 +34,9 @@ def read_query(query):
     result = None
     try:
         cursor.execute(query)
-        result = cursor.fetchall()
-        return result
+        return cursor.fetchall()
     except Error as err:
         return 400
-
 
 # função a usar para registar um user
 def registerUser(name, password, amount, isAdmin):
@@ -47,8 +45,7 @@ def registerUser(name, password, amount, isAdmin):
         INSERT INTO user (name, password, amount, isAdmin) 
         VALUES  ('{name}', '{password}', {amount}, {isAdmin});
     '''
-    code = execute_query(connection,query)
-    return code
+    return execute_query(connection,query)
 
 # função a usar para receber a lista de todos os users e os seus dados
 def getUsers():
@@ -65,4 +62,22 @@ def getUser(name):
         SELECT * FROM user WHERE user.name = "{name}";
     '''
     return read_query(query)
-    
+
+# função que verifica que se já existe na bd um user com um dado name, util para verificar quando alguem tentar fazer um registo
+def checkUserExists(name):
+    result = getUser(name)
+    if not result:  # veio resultado vazio, ou seja, nao existe uma entrada na bd com este name
+        return "0"
+
+    return "1"
+        
+# função que verifica se as credenciais estão corretas. para ser usada no log in
+def checkCredentials(name,password):
+    connection = create_server_connection("localhost", "root", "JprG7654", "RAS")
+    query = f'''
+        SELECT * FROM user WHERE (user.name = "{name}") AND (user.password = "{password}");
+    '''
+    result = read_query(query)
+    if not result: return "0"
+
+    return "1"

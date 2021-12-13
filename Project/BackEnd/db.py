@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect
 import Controllers.userController as userController
 
 app = Flask(__name__)
+
+
 # rota usada para devolver a lista de todos os users e os seus dados
 # devolve em formato json/dict 
 @app.route('/users')
@@ -19,7 +21,8 @@ def users():
 
     return result
 
-# rota a usar para receber os dados de um user em particular, definido pelo name (username)
+
+# rota a usar para receber os dados de um user em particular, definido pelo user_name
 # devolve o resultado em json/dict
 @app.route('/user/<user_name>')
 def user(user_name):
@@ -41,11 +44,36 @@ def user(user_name):
 @app.route('/register', methods = ['POST'])
 def register():  
     name = request.json['name']
+
+    available = userController.checkUserExists(name)
+    if (available == "0"):
+        password = request.json['password']
+        amount = request.json['amount']
+        isAdmin = request.json['isAdmin']
+
+   
+        code = userController.registerUser(name, password, amount, isAdmin)
+        if (code == 200):
+            return {"sucess": "User registado com sucesso"}
+        else:
+            return {"error": "Erro a inserir user. Tente outra vez mais tarde"}
+
+    else:
+        return {"error": "Name já utilizado."}
+
+# rota usada para fazer log in de um user
+@app.route('/login', methods = ['POST'])
+def login():
+    name = request.json['name']
     password = request.json['password']
-    amount = request.json['amount']
-    isAdmin = request.json['isAdmin']
-    code = userController.registerUser(name, password, amount, isAdmin)
-    return f'''{code}'''
+
+    logIn = userController.checkCredentials(name,password)
+
+    if (logIn == "0"): 
+        return {"error": "Credenciais erradas"}
+
+    else:
+        return {"sucess": "Log in com sucesso"}
 
 if __name__ == '__main__':
     app.run(debug=True)
