@@ -29,7 +29,7 @@ def execute_query(connection, query):
 
 # usar esta função quando for para executar uma query e receber um resultado. Neste caso, o resultado vai ser devolvido na variavel result
 def read_query(query):
-    connection = create_server_connection("localhost", "root", "JprG7654", "RAS")
+    connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
     cursor = connection.cursor()
     result = None
     try:
@@ -39,27 +39,27 @@ def read_query(query):
         return 400
 
 # função a usar para registar um user
-def registerUser(name, password, amount, isAdmin):
-    connection = create_server_connection("localhost", "root", "JprG7654", "RAS")
+def registerUser(username, name, password, isAdmin):
+    connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
     query = f'''
-        INSERT INTO user (name, password, amount, isAdmin) 
-        VALUES  ('{name}', '{password}', {amount}, {isAdmin});
+        INSERT INTO user (username, name, password, isAdmin) 
+        VALUES  ('{username}', '{name}', {password}, {isAdmin});
     '''
     return execute_query(connection,query)
 
 # função a usar para receber a lista de todos os users e os seus dados
 def getUsers():
-    connection = create_server_connection("localhost", "root", "JprG7654", "RAS")
+    connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
     query = f'''
         SELECT * FROM user;
     '''
     return read_query(query)
 
 # função a usar para receber os dados de um user dado o ser name
-def getUser(name):
-    connection = create_server_connection("localhost", "root", "JprG7654", "RAS")
+def getUser(username):
+    connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
     query = f'''
-        SELECT * FROM user WHERE user.name = "{name}";
+        SELECT * FROM user WHERE user.username = "{username}";
     '''
     return read_query(query)
 
@@ -73,7 +73,7 @@ def checkUserExists(name):
         
 # função que verifica se as credenciais estão corretas. para ser usada no log in
 def checkCredentials(name,password):
-    connection = create_server_connection("localhost", "root", "JprG7654", "RAS")
+    connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
     query = f'''
         SELECT * FROM user WHERE (user.name = "{name}") AND (user.password = "{password}");
     '''

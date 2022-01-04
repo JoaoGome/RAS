@@ -64,6 +64,7 @@ def register():
 # rota usada para fazer log in de um user
 @app.route('/login', methods = ['POST'])
 def login():
+    print(request.json)
     name = request.json['name']
     password = request.json['password']
 
