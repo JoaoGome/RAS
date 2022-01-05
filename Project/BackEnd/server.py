@@ -3,7 +3,6 @@ import Controllers.userController as userController
 
 app = Flask(__name__)
 
-
 # rota usada para devolver a lista de todos os users e os seus dados
 # devolve em formato json/dict 
 @app.route('/users')
@@ -43,16 +42,19 @@ def user(user_name):
 # os dados do User (name, password, amount, isAdmin) devem ser passados em formato json ou entao da erro
 @app.route('/register', methods = ['POST'])
 def register():  
-    name = request.json['name']
+    username = request.json['username']
 
-    available = userController.checkUserExists(name)
+    available = userController.checkUserExists(username)
     if (available == "0"):
+        name = request.json('name')
         password = request.json['password']
-        amount = request.json['amount']
         isAdmin = request.json['isAdmin']
+        valor = request.json['valor']
+        moeda = request.json['moeda']
+
 
    
-        code = userController.registerUser(name, password, amount, isAdmin)
+        code = userController.registerUser(username, name, password, isAdmin, valor, moeda)
         if (code == 200):
             return {"sucess": "User registado com sucesso"}
         else:
@@ -64,11 +66,11 @@ def register():
 # rota usada para fazer log in de um user
 @app.route('/login', methods = ['POST'])
 def login():
-    print(request.json)
-    name = request.json['name']
+
+    username = request.json['username']
     password = request.json['password']
 
-    logIn = userController.checkCredentials(name,password)
+    logIn = userController.checkCredentials(username,password)
 
     if (logIn == "0"): 
         return {"error": "Credenciais erradas"}

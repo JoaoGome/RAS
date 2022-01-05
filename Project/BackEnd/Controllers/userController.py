@@ -39,13 +39,28 @@ def read_query(query):
         return 400
 
 # função a usar para registar um user
-def registerUser(username, name, password, isAdmin):
+def registerUser(username, name, password, isAdmin, valor, moeda):
     connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
     query = f'''
         INSERT INTO user (username, name, password, isAdmin) 
         VALUES  ('{username}', '{name}', {password}, {isAdmin});
     '''
-    return execute_query(connection,query)
+    if (execute_query(connection,query) == 200):
+        queryUser = f'''
+            SELECT user_id FROM user WHERE username = "{username}";
+        ''' 
+        user_id = (read_query(queryUser)[0])[0]
+
+        queryMoeda = f'''
+            SELECT moeda_id FROM moeda WHERE nome = "{moeda}";
+        ''' 
+        moeda_id = (read_query(queryMoeda)[0])[0]
+        query3 = f'''
+            INSERT INTO userMoeda (user_id, moeda_id, valor)
+            VALUES ({user_id},{moeda_id},{valor});
+        '''
+
+        return execute_query(connection,query3)
 
 # função a usar para receber a lista de todos os users e os seus dados
 def getUsers():
@@ -62,10 +77,11 @@ def getUser(username):
         SELECT * FROM user WHERE user.username = "{username}";
     '''
     return read_query(query)
+    
 
 # função que verifica que se já existe na bd um user com um dado name, util para verificar quando alguem tentar fazer um registo
-def checkUserExists(name):
-    result = getUser(name)
+def checkUserExists(username):
+    result = getUser(username)
     if not result:  # veio resultado vazio, ou seja, nao existe uma entrada na bd com este name
         return "0"
 
@@ -81,3 +97,20 @@ def checkCredentials(name,password):
     if not result: return "0"
 
     return "1"
+
+# função que verifica se um dado user tem dinheiro para fazer a aposta que pretende
+
+def checkCredito(moeda_id, valor, user_id):
+    connection = create_server_connection("localhost", "root", "JprG7654", "mydb")
+    query = f'''
+        SELECT valor FROM userMoeda WHERE user_id = {user_id} AND moeda_id = {moeda_id}
+    '''
+
+    valorBD = (read_query(query)[0])[0]
+
+    if (valorBD < valor):
+        return 0
+
+    return 1
+
+    
